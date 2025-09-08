@@ -19,7 +19,7 @@ public class LoginServiceImpl implements LoginService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtServiceImp;
+    private final JwtService jwtService;
 
     @Override
     public UserResponse login(LoginRequest request) {
@@ -35,7 +35,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public UserResponse loginWithToken(String token) {
-        String email = jwtServiceImp.extractEmail(token);
+        String email = jwtService.extractEmail(token);
         var user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -46,7 +46,7 @@ public class LoginServiceImpl implements LoginService {
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
 
-        String newToken = jwtServiceImp.generateToken(user.getEmail());
+        String newToken = jwtService.generateToken(user.getEmail());
 
         return UserMapper.toResponse(user, newToken);
     }
